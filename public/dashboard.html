@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - corntex</title>
+  <meta name="description" content="Gestiona y analiza tus enlaces acortados desde tu dashboard personal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#6366f1',
+              hover: '#4f46e5',
+              light: '#818cf8',
+              bg: 'rgba(99, 102, 241, 0.15)',
+            },
+            'deep-dark': '#020617',
+            'deep-card': '#0f172a',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease forwards',
+            'slide-down': 'slideDown 0.4s ease forwards',
+            'spin-slow': 'spin 3s linear infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              'from': { opacity: '0', transform: 'translateY(10px)' },
+              'to': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideDown: {
+              'from': { opacity: '0', transform: 'translateY(-12px)' },
+              'to': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .animate-shake {
+        animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      }
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <!-- Dashboard Navbar -->
+  <nav class="sticky top-0 z-[1000] bg-deep-dark/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 group">
+        <div class="p-2 bg-indigo-500/10 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
+          <svg class="w-7 h-7 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <span class="text-xl font-bold font-outfit tracking-tight text-white">corntex</span>
+      </a>
+      
+      <div class="flex items-center gap-6" id="dashNav">
+        <div class="flex items-center gap-2 text-sm font-medium text-slate-300 bg-white/5 px-4 py-2 rounded-full border border-white/10 select-none">
+          <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="dashUserName" class="text-white font-semibold"></span>
+        </div>
+        <div class="h-4 w-px bg-white/10 hidden md:block"></div>
+        <button class="text-sm font-semibold text-red-400/80 hover:text-red-400 transition-all hover:translate-y-[-1px] flex items-center gap-2" onclick="logout()">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Salir
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <main class="py-12 min-h-[calc(100vh-64px)] bg-deep-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex items-center gap-4 transition-all hover:bg-white/10">
+          <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-3xl font-extrabold text-white block leading-none mb-1" id="totalLinks">0</span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Enlaces</span>
+          </div>
+        </div>
+
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex items-center gap-4 transition-all hover:bg-white/10">
+          <div class="w-12 h-12 bg-green-500/20 text-green-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-3xl font-extrabold text-white block leading-none mb-1" id="totalClicks">0</span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Clics</span>
+          </div>
+        </div>
+
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex items-center gap-4 transition-all hover:bg-white/10">
+          <div class="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-3xl font-extrabold text-white block leading-none mb-1" id="activeLinks">0</span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Enlaces Activos</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Shortener Bar -->
+      <div class="bg-white/5 backdrop-blur-2xl border border-white/10 p-2 rounded-3xl shadow-2xl mb-12">
+        <form class="flex flex-col gap-3" onsubmit="return false;">
+          <div class="flex flex-col md:flex-row gap-2">
+            <div class="relative flex-1 group">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              </div>
+              <input type="url" id="dashUrlInput" 
+                class="w-full pl-11 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" 
+                placeholder="Pega tu enlace largo aquí..." required>
+            </div>
+            <button type="submit" id="dashShortenBtn" onclick="dashShortenUrl()"
+              class="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 flex items-center justify-center min-w-[140px]">
+              <span class="btn-text">Acortar</span>
+              <span class="btn-loader hidden">
+                <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-4 px-4 py-1">
+            <div class="flex items-center gap-2 text-slate-400 group">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <select id="dashExpirationSelect" class="bg-transparent text-sm font-medium focus:outline-none cursor-pointer hover:text-white transition-colors">
+                <option value="" class="bg-slate-900">Sin expiración</option>
+                <option value="0.0416" class="bg-slate-900">1 hora</option>
+                <option value="1" class="bg-slate-900">1 día</option>
+                <option value="7" class="bg-slate-900">7 días</option>
+                <option value="30" class="bg-slate-900">30 días</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- URLs List -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between px-2">
+          <h2 class="text-xl font-bold text-white font-outfit">Tus Enlaces</h2>
+          <span class="text-xs font-bold text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5" id="urlsCount"></span>
+        </div>
+
+        <div class="flex flex-col gap-4" id="urlsList">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="hidden flex-col items-center justify-center py-20 text-center" id="emptyState">
+          <div class="p-6 bg-white/5 rounded-full mb-6">
+            <svg class="w-16 h-16 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">No tienes enlaces aún</h3>
+          <p class="text-slate-500">¡Acorta tu primer enlace usando la barra de arriba!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- QR Modal -->
+  <div class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-deep-dark/60 backdrop-blur-md hidden" id="qrModal">
+    <div class="relative w-full max-w-[360px] bg-deep-card/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl p-8 animate-slide-down text-center">
+      <button class="absolute top-4 right-4 p-2 text-slate-500 hover:text-white transition-colors" onclick="closeQrModal()">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3 class="text-lg font-bold text-white mb-6">Código QR</h3>
+      <div class="bg-white p-4 rounded-2xl shadow-xl mb-6 mx-auto inline-block">
+        <img id="qrModalImage" alt="Código QR" class="w-48 h-48">
+      </div>
+      <p class="text-sm font-bold text-indigo-400 truncate mb-6" id="qrModalUrl"></p>
+      <button class="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95" onclick="downloadQr()">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar QR
+      </button>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-deep-dark/60 backdrop-blur-md hidden" id="deleteModal">
+    <div class="relative w-full max-w-[360px] bg-deep-card/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl p-8 animate-slide-down text-center">
+      <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">¿Eliminar enlace?</h3>
+      <p class="text-sm text-slate-400 mb-8 leading-relaxed">Esta acción no se puede deshacer. El enlace dejará de funcionar inmediatamente para todos.</p>
+      <div class="flex gap-3">
+        <button class="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-xl transition-all" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/25 transition-all" id="confirmDeleteBtn" onclick="confirmDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Toast ─────────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
