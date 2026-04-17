@@ -1,8 +1,7 @@
-# Corntex — El Acortador de Enlaces de Nueva Generación
+# Corntex — Acortador de enlaces
 
-Corntex es una plataforma de acortamiento de URLs de alto rendimiento, diseñada para ofrecer una experiencia de usuario fluida; Construida sobre una arquitectura minimalista pero robusta.
+Es una plataforma de acortamiento de URLs de alto rendimiento, diseñada para ofrecer una experiencia de usuario fluida; Construida sobre una arquitectura minimalista pero robusta.
 
-## 🚀 Tecnologías de Vanguardia
 
 ### Frontend (Modern UI/UX)
 - **Tailwind CSS**: Implementación de una arquitectura utility-first que ha sustituido completamente al CSS tradicional, permitiendo un diseño ágil y extremadamente pulido.
@@ -24,7 +23,7 @@ Corntex es una plataforma de acortamiento de URLs de alto rendimiento, diseñada
 
 ---
 
-## 🛠️ Funcionalidades Estelares
+## 🛠️ Funcionalidades
 
 1.  **Shortening Inteligente**: Algoritmos basados en Nano ID para generar enlaces cortos únicos y seguros.
 2.  **Panel de Estadísticas (Dashboard)**: Visualización en tiempo real de clics, enlaces activos y rendimiento global del usuario.
