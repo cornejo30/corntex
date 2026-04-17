@@ -22,7 +22,7 @@ app.use(helmet({
 }));
 
 // Static files (Served BEFORE rate limiting to avoid blocking UI assets)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(express.json());
 

@@ -1,85 +1,41 @@
-# Corntex — Acortador de enlaces
+# Corntex 🔗
 
-Es una plataforma de acortamiento de URLs de alto rendimiento, diseñada para ofrecer una experiencia de usuario fluida; Construida sobre una arquitectura minimalista pero robusta.
+Un acortador de URLs simple, pero con onda. Tiene un diseño oscuro tipo "Deep Slate", usa glassmorphism y está hecho para ser rápido y seguro.
 
+## 🛠 Lo que usa:
+- **Backend:** Node.js + Express.
+- **Base de Datos:** SQLite (con `better-sqlite3`, vuela 🚀).
+- **Frontend:** HTML + JS puro + Tailwind CSS (estilo premium).
+- **Seguridad:** JWT para sesiones, Bcrypt para contraseñas y Rate Limiting para que no lo tumben.
 
-### Frontend (Modern UI/UX)
-- **Tailwind CSS**: Implementación de una arquitectura utility-first que ha sustituido completamente al CSS tradicional, permitiendo un diseño ágil y extremadamente pulido.
-- **Glassmorphism 2.0**: Uso avanzado de desenfoques de fondo (`backdrop-blur`), bordes micro-perceptibles y degradados suaves.
-- **Google Fonts (Outfit & Inter)**: Combinación tipográfica premium que mejora la legibilidad y la jerarquía visual.
-- **Micro-interacciones**: Animaciones fluidas desarrolladas con Tailwind para estados hover, carga y transiciones de página.
+## 📁 Estructura:
+- `src/`: Aquí vive toda la lógica del servidor (auth, DB, ruteo).
+- `public/`: El frontend. HTML y JS que corre en el navegador.
+- `shorten.db`: Tu base de datos local (se ignora en git por seguridad).
 
-### Backend (Seguridad & Potencia)
-- **Node.js + Express**: Servidor optimizado capaz de manejar redirecciones y peticiones de API con latencia mínima.
-- **Seguridad Robusta**: 
-  - **Tiered Rate Limiting**: Sistema inteligente de limitación de tasa que diferencia entre navegación fluida y protección estricta contra ataques de fuerza bruta en autenticación.
-  - **Helmet.js**: Cabeceras de seguridad HTTP configuradas para mitigar ataques comunes.
-  - **Validator.js**: Saneamiento estricto de inputs tanto en cliente como en servidor.
-- **JWT (JSON Web Token)**: Autenticación segura y escalable.
-- **Bcrypt.js**: Hash de contraseñas de última generación.
-
-### Infraestructura de Datos
-- **better-sqlite3**: Motor de base de datos SQL ultrarrápido y local. Al ser autocontenido (`corntex.db`), ofrece un rendimiento superior para aplicaciones de este volumen sin la sobrecarga de un servidor externo.
-
----
-
-## 🛠️ Funcionalidades
-
-1.  **Shortening Inteligente**: Algoritmos basados en Nano ID para generar enlaces cortos únicos y seguros.
-2.  **Panel de Estadísticas (Dashboard)**: Visualización en tiempo real de clics, enlaces activos y rendimiento global del usuario.
-3.  **Códigos QR Dinámicos**: Generación instantánea de QRs de diseño limpio para cada enlace acortado.
-4.  **Expiración Personalizable**: Control total sobre la vida útil de tus enlaces (desde 1 hora hasta permanentes).
-5.  **Validación de Contraseñas**: Sistema visual de fuerza de contraseña en tiempo real para garantizar cuentas seguras.
-
----
-
-## 📁 Arquitectura del Proyecto
-
-- **`server.js`**: Orquestador principal. Incluye middleware de seguridad, limitadores de tasa y ruteo de archivos estáticos.
-- **`database.js`**: Capa de persistencia optimizada con sentencias preparadas para prevenir inyecciones SQL.
-- **`/public`**:
-  - `index.html` & `dashboard.html`: Interfaces reactivas construidas íntegramente con componentes Tailwind.
-  - `js/`: Módulos especializados para Autenticación, Lógica Principal y Gestión del Dashboard.
-
----
-
-## 📦 Instalación y Uso Local
-
-Sigue estos pasos para poner en marcha Corntex:
-
-1. **Instalar dependencias**:
+## 🚀 Cómo correrlo:
+1. Instala lo necesario:
    ```bash
    npm install
    ```
-2. **Iniciar el servidor**:
+2. Lánzalo:
    ```bash
    npm start
    ```
-3. **Acceder**: Abre `http://localhost:3000` en tu navegador.
+3. Entra a: `http://localhost:3000`
+
+## 🔧 Solución de líos rápidos:
+### El puerto 3000 está ocupado:
+Si te sale el error `EADDRINUSE`, es que algo ya está usando el puerto 3000. 
+- **Opción A (Matar el proceso en Windows):**
+  ```powershell
+  netstat -ano | findstr :3000
+  taskkill /F /PID <El-Número-Que-Salga-Al-Final>
+  ```
+- **Opción B (Cambiar el puerto):**
+  ```bash
+  $env:PORT=3001; npm start
+  ```
 
 ---
-
-## 🔧 Solución de Problemas
-
-### Error: `EADDRINUSE: address already in use :::3000`
-Este error indica que el puerto 3000 ya está siendo utilizado. Puedes:
-
-1. **Liberar el puerto** (En Windows):
-   ```powershell
-   # Encuentra el PID del proceso
-   netstat -ano | findstr :3000
-   # Mata el proceso (usa el PID que aparece al final)
-   taskkill /F /PID <PID>
-   ```
-2. **Usar otro puerto**:
-   ```bash
-   # Windows (PowerShell)
-   $env:PORT=3001; npm start
-   # Linux / macOS
-   PORT=3001 npm start
-   ```
-
----
-
-## 🔒 Compromiso de Seguridad
-Corntex implementa validaciones de expresiones regulares (Regex) complejas en el servidor para evitar que URLs malformadas o scripts maliciosos entren en el sistema, asegurando que cada redirección sea segura para el usuario final.
+Hecho con ganas para ser el acortador más limpio que uses.
