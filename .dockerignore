@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+shorten.db
+shorten.db-shm
+shorten.db-wal
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.env
+README.md
+implementation_plan.md
+task.md
+walkthrough.md

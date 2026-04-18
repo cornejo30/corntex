@@ -1,0 +1,16 @@
+# Use docker compose without version attribute (obsolete)
+
+services:
+  app:
+    build: .
+    container_name: corntex-app
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3001}:3000"
+    volumes:
+      - ./shorten.db:/app/shorten.db
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
