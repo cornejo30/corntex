@@ -94,19 +94,24 @@ function switchTab(tab) {
 
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
+  const forgotForm = document.getElementById('forgotForm');
+  const resetForm = document.getElementById('resetForm');
   const authError = document.getElementById('authError');
+  const tabsContainer = document.querySelector('[data-tab="login"]') ? document.querySelector('[data-tab="login"]').parentElement : null;
 
   if (authError) authError.classList.add('hidden');
 
-  if (loginForm && registerForm) {
-    if (tab === 'login') {
-      loginForm.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-    } else {
-      loginForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
-    }
+  [loginForm, registerForm, forgotForm, resetForm].forEach(f => f && f.classList.add('hidden'));
+
+  if (tabsContainer) {
+    if (tab === 'login' || tab === 'register') tabsContainer.classList.remove('hidden');
+    else tabsContainer.classList.add('hidden');
   }
+
+  if (tab === 'login' && loginForm) loginForm.classList.remove('hidden');
+  else if (tab === 'register' && registerForm) registerForm.classList.remove('hidden');
+  else if (tab === 'forgot' && forgotForm) forgotForm.classList.remove('hidden');
+  else if (tab === 'reset' && resetForm) resetForm.classList.remove('hidden');
 }
 
 function showAuthError(message) {
@@ -163,6 +168,104 @@ async function handleLogin(e) {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Iniciar Sesión';
+  }
+}
+
+function handleForgotPassword() {
+  switchTab('forgot');
+  const loginEmail = document.getElementById('loginEmail').value.trim();
+  if (loginEmail) {
+    document.getElementById('forgotEmail').value = loginEmail;
+  }
+}
+
+async function handleSendResetLink(e) {
+  e.preventDefault();
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn = document.getElementById('forgotBtn');
+
+  if (!email) {
+    showAuthError('Ingresa tu correo electrónico');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  hideAuthError();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showAuthError(data.error || 'Error al solicitar reseteo');
+      return;
+    }
+
+    showToast(data.message, 'success');
+    switchTab('login');
+  } catch (err) {
+    showAuthError('Error de conexión. Intenta de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar Enlace';
+  }
+}
+
+let resetTokenParams = null;
+
+async function handlePasswordReset(e) {
+  e.preventDefault();
+  if (!resetTokenParams) return;
+
+  const password = document.getElementById('resetPassword').value;
+  const confirmPassword = document.getElementById('resetConfirmPassword').value;
+  const btn = document.getElementById('resetBtn');
+
+  if (password !== confirmPassword) {
+    showAuthError('Las contraseñas no coinciden');
+    return;
+  }
+
+  if (password.length < 8) {
+    showAuthError('La contraseña debe tener al menos 8 caracteres');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  hideAuthError();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: resetTokenParams.email,
+        token: resetTokenParams.token,
+        newPassword: password
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showAuthError(data.error || 'Error al restablecer contraseña');
+      return;
+    }
+
+    showToast('Contraseña restablecida correctamente. Ya puedes iniciar sesión.', 'success');
+    resetTokenParams = null;
+    window.history.replaceState({}, '', '/');
+    switchTab('login');
+  } catch (err) {
+    showAuthError('Error de conexión. Intenta de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Guardar Contraseña';
   }
 }
 
@@ -358,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAuthUI();
   initPasswordWatcher();
 
-  // Check for expired/notfound query params
+  // Check for expired/notfound/reset query params
   const params = new URLSearchParams(window.location.search);
   if (params.get('expired') === '1') {
     showToast('Este enlace ha expirado', 'error');
@@ -367,5 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (params.get('notfound') === '1') {
     showToast('Enlace no encontrado', 'error');
     window.history.replaceState({}, '', '/');
+  }
+  if (params.get('reset_token') && params.get('email')) {
+    resetTokenParams = {
+      token: params.get('reset_token'),
+      email: params.get('email')
+    };
+    openAuthModal('reset');
   }
 });

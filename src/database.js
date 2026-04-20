@@ -50,6 +50,7 @@ const stmts = {
     FROM urls WHERE user_id = ?
   `),
   updateUserIP: db.prepare('UPDATE users SET last_ip = ? WHERE id = ?'),
+  updateUserPassword: db.prepare('UPDATE users SET password_hash = ? WHERE id = ?'),
 };
 
 module.exports = {
@@ -93,5 +94,9 @@ module.exports = {
 
   updateUserIP(userId, ip) {
     stmts.updateUserIP.run(ip, userId);
+  },
+
+  updateUserPassword(userId, hash) {
+    stmts.updateUserPassword.run(hash, userId);
   },
 };

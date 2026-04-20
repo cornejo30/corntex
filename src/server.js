@@ -7,8 +7,27 @@ const QRCode = require('qrcode');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const validator = require('validator');
+const nodemailer = require('nodemailer');
 const db = require('./database');
 const { requireAuth, optionalAuth, JWT_SECRET } = require('./auth-middleware');
+
+let emailTransporter = null;
+nodemailer.createTestAccount((err, account) => {
+  if (err) {
+    console.error('Failed to create a testing account. ' + err.message);
+    return;
+  }
+  emailTransporter = nodemailer.createTransport({
+    host: account.smtp.host,
+    port: account.smtp.port,
+    secure: account.smtp.secure,
+    auth: { user: account.user, pass: account.pass },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+  console.log('✉️  Ethereal Email transporter ready.');
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -140,6 +159,68 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json(user);
 });
 
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email requerido' });
+    
+    const user = db.getUserByEmail(validator.normalizeEmail(email));
+    if (!user) {
+      // Retornar éxito incluso si no existe para evitar enumeración de usuarios
+      return res.json({ success: true, message: 'Si el correo existe, se ha enviado un enlace.' });
+    }
+
+    const resetToken = jwt.sign({ id: user.id }, user.password_hash + JWT_SECRET, { expiresIn: '15m' });
+    const resetLink = `${BASE_URL}/?reset_token=${resetToken}&email=${encodeURIComponent(user.email)}`;
+
+    if (emailTransporter) {
+      const info = await emailTransporter.sendMail({
+        from: '"Corntex Support" <support@corntex.dev>',
+        to: user.email,
+        subject: 'Recuperación de Contraseña',
+        text: `Hola ${user.name},\n\nHaz clic en el siguiente enlace para restablecer tu contraseña: ${resetLink}\n\nSi no lo solicitaste, ignora este correo.`,
+        html: `<p>Hola ${user.name},</p><p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p><p><a href="${resetLink}">${resetLink}</a></p><p>Si no lo solicitaste, ignora este correo.</p>`
+      });
+      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    } else {
+      console.warn('Email transporter not ready. Reset link:', resetLink);
+    }
+
+    res.json({ success: true, message: 'Si el correo existe, se ha enviado un enlace.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, token, newPassword } = req.body;
+    if (!email || !token || !newPassword) return res.status(400).json({ error: 'Faltan datos' });
+    
+    if (!validator.isLength(newPassword, { min: 8 })) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+
+    const user = db.getUserByEmail(validator.normalizeEmail(email));
+    if (!user) return res.status(400).json({ error: 'Enlace inválido o expirado' });
+
+    try {
+      jwt.verify(token, user.password_hash + JWT_SECRET);
+    } catch(err) {
+      return res.status(400).json({ error: 'Enlace inválido o expirado' });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    db.updateUserPassword(user.id, hash);
+
+    res.json({ success: true, message: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // ─── URL Routes ─────────────────────────────────────────────
 
 app.post('/api/shorten', optionalAuth, async (req, res) => {
@@ -252,7 +333,7 @@ app.get('/api/stats', requireAuth, (req, res) => {
 // ─── Dashboard Route ────────────────────────────────────────
 
 app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, '../public', 'dashboard.html'));
 });
 
 // ─── Redirect Route (MUST be last) ─────────────────────────

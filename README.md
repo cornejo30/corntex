@@ -41,7 +41,7 @@ Un acortador de URLs simple, pero muy funcional. Tiene un diseño oscuro pero am
 ## 🐳 Persistencia con Docker:
 La base de datos se guarda en `shorten.db` en tu carpeta local. Docker la monta automáticamente para que no pierdas tus enlaces al apagar el contenedor.
 
-## 🔧 Solución de líos rápidos:
+## 🔧 Solución de problemas rápidos:
 ### El puerto 3000 está ocupado:
 Si te sale el error `EADDRINUSE`, es que algo ya está usando el puerto 3000. 
 - **Opción A (Matar el proceso en Windows):**
@@ -51,6 +51,19 @@ Si te sale el error `EADDRINUSE`, es que algo ya está usando el puerto 3000.
   ```
 - **Opción B (Usando Docker):**
   Cambia el puerto en tu archivo `.env` o directamente en el `docker-compose.yml`.
+
+## 🔑 Recuperación de Contraseña:
+Corntex incluye ahora un flujo de recuperación integral por correo electrónico usando tokens de alta seguridad.
+
+Para restablecer una contraseña olvidada:
+1. Haz clic en **"¿Olvidaste tu contraseña?"** en el modal de Iniciar Sesión de la interfaz web.
+2. Ingresa tu correo electrónico y envíalo.
+3. Para entornos de desarrollo usamos **Ethereal Email** (un buzón falso automático). Revisa la terminal donde estés corriendo el proyecto o simplemente usa en Docker:
+   ```bash
+   docker logs corntex-app | select -Last 15
+   ```
+4. Busca un enlace llamado `Preview URL: https://ethereal.email/...`
+5. Ábrelo, dale clic al botón de restablecer dentro del correo e ingresa tu nueva contraseña segura directamente desde la plataforma web.
 
 ---
 Hecho para ser el acortador más limpio que uses.
